@@ -1,5 +1,5 @@
 function power_analysis(N,varargin)
-% power_analysis(N,effect_size,Effect_size_in_population,Treatment_sample_frac,alpha,Nsim)
+% power_analysis(N,effect_size,Effect_size_in_population,Treatment_sample_frac,alpha,Nsim,Treatment_effect_frac)
 
 % This function makes power analysis. It plots the power vs. the effect
 % size for different population sizes. Note that this code doesn't take standard deviation of the
@@ -25,7 +25,11 @@ function power_analysis(N,varargin)
 %
 % alpha: the significance level
 %
-% Nsim: number of random binomial simulations,
+% Nsim: number of random binomial simulations
+%
+% Treatment_effect_frac: is the fraction within the treatment sample on
+% which we expect to see an effect size. The default is all the treatment
+% sample (1).
 
 % Example:
 % Treatment_sample_frac = 87/1328; N = [1e3,5e3,1e4,5e4,1e5]; effect_size = [-100:2:100]/100; Effect_size_in_population = 0.01; alpha = 0.05; Nsim = 1e2;
@@ -37,7 +41,7 @@ function power_analysis(N,varargin)
 numvarargs = length(varargin);
 
 % set defaults for optional inputs
-optargs = {[-100:2:100]/100 0 0.5 0.05 1e2};
+optargs = {[-100:2:100]/100 0 0.5 0.05 1e2 1};
 
 % now put these defaults into the valuesToUse cell array, 
 % and overwrite the ones specified in varargin.
@@ -45,7 +49,7 @@ optargs(1:numvarargs) = varargin;
 
 % Place optional args in memorable variable names
 effect_size = optargs{1};
-[~,Effect_size_in_population, Treatment_sample_frac, alpha, Nsim] = optargs{:};
+[~,Effect_size_in_population, Treatment_sample_frac, alpha, Nsim, Treatment_sample_frac] = optargs{:};
 %%
 
 if Nsim >= 1e4, fprintf('\n\n Notice, the Nsim value is high, so computation time will be high! \n\n'); end
@@ -57,6 +61,9 @@ if Nsim >= 1e4, fprintf('\n\n Notice, the Nsim value is high, so computation tim
 if Effect_size_in_population ~= 0
     effect_size = effect_size*Effect_size_in_population; % [%]
 end
+% If the effect size doesn't apply on all the treatment sample, we take it
+% into consideration.
+effect_size = effect_size*Treatment_sample_frac;
 
 power = zeros(length(N),length(effect_size));
 for k = 1:length(N)
@@ -103,7 +110,9 @@ for k = 1:length(N)
 end
 
 %% Plotting
-effect_size = effect_size/Effect_size_in_population*1e2;
+% Getting back the effect size that apply on the effect and items we expect
+% it to apply.
+effect_size = effect_size/Effect_size_in_population/Treatment_sample_frac*1e2;
 figure
 plot(effect_size,smooth(power(1,:),10),'LineWidth',2)
 hold on
