@@ -103,19 +103,17 @@ for k = 1:length(N)
 end
 
 %% Plotting
+effect_size = effect_size/Effect_size_in_population*1e2;
 figure
-plot(smooth(power(1,:),10),'LineWidth',2)
+plot(effect_size,smooth(power(1,:),10),'LineWidth',2)
 hold on
 if length(N) > 1
    for i = 2:length(N)
-       plot(smooth(power(i,:),10),'LineWidth',2)
+       plot(effect_size,smooth(power(i,:),10),'LineWidth',2)
    end
 end
 xlabel('Effect Size [%]','FontSize',15)
 ylabel('Power','FontSize',15)
-set(gca,'XTick',1:ceil(length(effect_size)/11):length((effect_size)));
-effect_size = effect_size/Effect_size_in_population;
-set(gca,'XTickLabel',linspace(min(effect_size),max(effect_size),length(1:ceil(length(effect_size)/11):length((effect_size)))));
 set(gca,'XMinorTick','on','YMinorTick','on')
 % Make legend   
 s1 = [];
