@@ -1,5 +1,5 @@
 function power_analysis(N,varargin)
-% power_analysis(N,effect_size,Effect_size_in_population,Treatment_sample_frac,alpha,Nsim,Treatment_effect_frac)
+% power_analysis(N,effect_size,Effect_size_in_population,Treatment_sample_frac,alpha,Nsim,Treatment_effect_frac,samples_size_fixed)
 
 % This function makes power analysis. It plots the power vs. the effect
 % size for different population sizes. Note that this code doesn't take standard deviation of the
@@ -30,18 +30,25 @@ function power_analysis(N,varargin)
 % Treatment_effect_frac: is the fraction within the treatment sample on
 % which we expect to see an effect size. The default is all the treatment
 % sample (1).
+%
+% groups_size_fixed: if true (1) the treatment and control samples are
+% stayed at the same size. If false (0), the size of the treatment sample is determined by
+% random process using a binomial distribution where the success rate is Treatment_sample_frac
 
-% Example:
+% Examples:
 % Treatment_sample_frac = 87/1328; N = [1e3,5e3,1e4,5e4,1e5]; effect_size = [-100:2:100]/100; Effect_size_in_population = 0.01; alpha = 0.05; Nsim = 1e2;
 % power_analysis(N,effect_size,Effect_size_in_population,Treatment_sample_frac,alpha,Nsim)
-
+%
+% N = [200 300]; effect_size = linspace(100,500,50)/100; Effect_size_in_population = 0.05; Treatment_sample_frac = 0.5; alpha = 0.05; Nsim
+% = 1e3; Treatment_effect_frac = 0.9; samples_size_fixed = 1;
+% power_analysis(N,effect_size,Effect_size_in_population,Treatment_sample_frac,alpha,Nsim,Treatment_effect_frac,samples_size_fixed)
 
     
 %% Setting default values
 numvarargs = length(varargin);
 
 % set defaults for optional inputs
-optargs = {[-100:2:100]/100 0 0.5 0.05 1e2 1};
+optargs = {[-100:2:100]/100 0 0.5 0.05 1e2 1 1};
 
 % now put these defaults into the valuesToUse cell array, 
 % and overwrite the ones specified in varargin.
@@ -49,7 +56,7 @@ optargs(1:numvarargs) = varargin;
 
 % Place optional args in memorable variable names
 effect_size = optargs{1};
-[~,Effect_size_in_population, Treatment_sample_frac, alpha, Nsim, Treatment_effect_frac] = optargs{:};
+[~,Effect_size_in_population, Treatment_sample_frac, alpha, Nsim, Treatment_effect_frac, groups_size_fixed] = optargs{:};
 %%
 
 if Nsim >= 1e4, fprintf('\n\n Notice, the Nsim value is high, so computation time will be high! \n\n'); end
@@ -70,8 +77,11 @@ for k = 1:length(N)
     % Make Nsim simulations. In each simulation, we randomly get the number
     % Nk_plus out of N(k) cells using a binomially probability distribution 
     % where the chance for success is Treatment_sample_frac. 
-    Nk_plus = binornd(N(k),Treatment_sample_frac,[1,Nsim]);
-    
+    if groups_size_fixed
+        Nk_plus = repmat(N(k)*Treatment_sample_frac,1,Nsim);
+    else
+        Nk_plus = binornd(N(k),Treatment_sample_frac,[1,Nsim]);
+    end
     % The number of Nk_minus is simply the complement.
     Nk_minus = N(k) - Nk_plus;
     
