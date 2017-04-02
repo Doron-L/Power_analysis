@@ -49,7 +49,7 @@ optargs(1:numvarargs) = varargin;
 
 % Place optional args in memorable variable names
 effect_size = optargs{1};
-[~,Effect_size_in_population, Treatment_sample_frac, alpha, Nsim, Treatment_sample_frac] = optargs{:};
+[~,Effect_size_in_population, Treatment_sample_frac, alpha, Nsim, Treatment_effect_frac] = optargs{:};
 %%
 
 if Nsim >= 1e4, fprintf('\n\n Notice, the Nsim value is high, so computation time will be high! \n\n'); end
@@ -112,7 +112,7 @@ end
 %% Plotting
 % Getting back the effect size that apply on the effect and items we expect
 % it to apply.
-effect_size = effect_size/Effect_size_in_population/Treatment_sample_frac*1e2;
+effect_size = effect_size/Effect_size_in_population/Treatment_effect_frac*1e2;
 figure
 plot(effect_size,smooth(power(1,:),10),'LineWidth',2)
 hold on
