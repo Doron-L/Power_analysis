@@ -63,7 +63,7 @@ if Effect_size_in_population ~= 0
 end
 % If the effect size doesn't apply on all the treatment sample, we take it
 % into consideration.
-effect_size = effect_size*Treatment_sample_frac;
+effect_size = effect_size*Treatment_effect_frac;
 
 power = zeros(length(N),length(effect_size));
 for k = 1:length(N)
